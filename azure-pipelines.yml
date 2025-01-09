@@ -7,10 +7,10 @@ trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  name: Default
 
 variables:
-  buildDir: '$(System.DefaultWorkingDirectory)/target'
+  buildDir: '$(System.DefaultWorkingDirectory)\target'
 
 stages:
 - stage: Build
@@ -43,7 +43,7 @@ stages:
         jdkVersionOption: '1.11'
         jdkArchitectureOption: 'x64'
         publishJUnitResults: true
-        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        testResultsFiles: '**\surefire-reports\TEST-*.xml'
         goals: 'test'
 
 - stage: Deliver
@@ -54,13 +54,22 @@ stages:
     displayName: "Deliver Job"
     steps:
     - script: |
-        echo "Packaging artifact for delivery"
-        mkdir -p $(buildDir)/deliverables
-        cp $(buildDir)/*.jar $(buildDir)/deliverables/
+        echo "Debug: Checking $(buildDir)"
+        if not exist "$(buildDir)\deliverables" mkdir "$(buildDir)\deliverables"
+        echo "Copying JAR files to deliverables"
+        for %%f in ("$(buildDir)\*.jar") do (
+          echo Copying %%f
+          copy "%%f" "$(buildDir)\deliverables\"
+        )
+        echo "Copying test result files to deliverables"
+        for %%f in ("$(buildDir)\**\surefire-reports\TEST-*.xml") do (
+          echo Copying %%f
+          copy "%%f" "$(buildDir)\deliverables\"
+        )
       displayName: "Prepare Deliverables"
 
     - task: PublishPipelineArtifact@1
       inputs:
-        targetPath: '$(buildDir)/deliverables'
+        targetPath: '$(buildDir)\deliverables'
         artifact: 'java-app'
         publishLocation: 'pipeline'
