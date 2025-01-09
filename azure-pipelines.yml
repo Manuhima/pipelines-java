@@ -8,6 +8,8 @@ trigger:
 
 pool:
   name: Default
+  demands:
+    - agent.name -equals "Docker Agent - Windows"
 
 variables:
   buildDir: '$(System.DefaultWorkingDirectory)\target'
