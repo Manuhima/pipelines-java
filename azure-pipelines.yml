@@ -12,7 +12,7 @@ pool:
     - agent.name -equals Docker Agent - Windows
 
 variables:
-  buildDir: '$(System.DefaultWorkingDirectory)\target'
+  buildDir: '$(System.DefaultWorkingDirectory)/target'
 
 stages:
 - stage: Build
@@ -28,7 +28,12 @@ stages:
         javaHomeOption: 'JDKVersion'
         jdkVersionOption: '1.11'
         jdkArchitectureOption: 'x64'
-        goals: 'clean compile package'
+        goals: 'clean package'
+
+    - script: |
+        echo "Contents of $(buildDir):"
+        dir $(buildDir)
+      displayName: "List Build Directory"
 
 - stage: Test
   displayName: "Test Stage"
@@ -45,11 +50,8 @@ stages:
         jdkVersionOption: '1.11'
         jdkArchitectureOption: 'x64'
         publishJUnitResults: true
-        testResultsFiles: '**\surefire-reports\TEST-*.xml'
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
         goals: 'test'
-    - script: |
-        dir $(buildDir)
-      displayName: "List Target Directory"
 
 - stage: Deliver
   displayName: "Deliver Stage"
@@ -60,24 +62,9 @@ stages:
     steps:
     - script: |
         echo "Debug: Checking $(buildDir)"
-        if not exist "$(buildDir)\*.jar" (
-          echo "No JAR files found in $(buildDir)"
+        if not exist "$(buildDir)\*.war" (
+          echo "No WAR files found in $(buildDir)"
         ) else (
-          echo "Copying JAR files to deliverables"
+          echo "Copying WAR files to deliverables"
           if not exist "$(buildDir)\deliverables" mkdir "$(buildDir)\deliverables"
-          for %%f in ("$(buildDir)\*.jar") do copy "%%f" "$(buildDir)\deliverables\"
-        )
-        if not exist "$(buildDir)\surefire-reports\*" (
-          echo "No test result files found"
-        ) else (
-          echo "Copying test result files to deliverables"
-          xcopy /S /Y "$(buildDir)\surefire-reports" "$(buildDir)\deliverables\"
-        )
-        dir "$(buildDir)\deliverables"
-      displayName: "Prepare Deliverables with Validation"
-
-    - task: PublishPipelineArtifact@1
-      inputs:
-        targetPath: '$(buildDir)\deliverables'
-        artifact: 'java-app'
-        publishLocation: 'pipeline'
+          for %%f in ("$(buildDir)\*.war") do copy "%%f" "$(buildDir)\deliverables\
