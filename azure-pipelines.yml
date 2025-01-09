@@ -65,16 +65,16 @@ stages:
         testResultsFiles: '**\surefire-reports\TEST-*.xml'
         goals: 'test'
 
-    - script: |
-        echo "Cleaning up build-output to save space."
-        rmdir /S /Q "$(buildDir)"
-      displayName: "Cleanup Build Artifacts"
-
     - task: PublishPipelineArtifact@1
       inputs:
         targetPath: '$(buildDir)'
         artifact: 'test-output'
       displayName: "Publish Test Output"
+
+    - script: |
+        echo "Cleaning up build-output to save space."
+        rmdir /S /Q "$(buildDir)"
+      displayName: "Cleanup Build Artifacts"
 
 - stage: Deliver
   displayName: "Deliver Stage"
@@ -106,11 +106,6 @@ stages:
         )
         dir "$(buildDir)"
       displayName: "Prepare Deliverables with Validation"
-
-    - script: |
-        echo "Cleaning up test-output to save space."
-        rmdir /S /Q "$(buildDir)"
-      displayName: "Cleanup Test Artifacts"
       
     - task: PublishPipelineArtifact@1
       inputs:
@@ -118,3 +113,8 @@ stages:
         artifact: 'java-app'
         publishLocation: 'pipeline'
       displayName: "Publish Final Output"
+
+    - script: |
+        echo "Cleaning up test-output to save space."
+        rmdir /S /Q "$(buildDir)"
+      displayName: "Cleanup Test Artifacts"      
