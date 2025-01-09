@@ -81,7 +81,7 @@ stages:
     - task: DownloadPipelineArtifact@2
       inputs:
         artifact: 'test-output'
-        path: '$(System.DefaultWorkingDirectory)'
+        path: '$(buildDir)'
       displayName: "Download Test Output"
       
     - script: |
