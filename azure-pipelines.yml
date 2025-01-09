@@ -72,9 +72,9 @@ stages:
       displayName: "Publish Test Output"
 
     - script: |
-        echo "Cleaning up build-output to save space."
-        rmdir /S /Q "$(buildDir)"
-      displayName: "Cleanup Build Artifacts"
+        echo "Removing build-output artifact from pipeline."
+        az pipelines artifact delete --project $(System.TeamProject) --name build-output --run-id $(Build.BuildId) --yes
+      displayName: "Delete Build Output Artifact"
 
 - stage: Deliver
   displayName: "Deliver Stage"
@@ -106,15 +106,15 @@ stages:
         )
         dir "$(buildDir)"
       displayName: "Prepare Deliverables with Validation"
+
+    - script: |
+        echo "Removing test-output artifact from pipeline."
+        az pipelines artifact delete --project $(System.TeamProject) --name test-output --run-id $(Build.BuildId) --yes
+      displayName: "Delete Test Output Artifact"      
       
     - task: PublishPipelineArtifact@1
       inputs:
         targetPath: '$(buildDir)\deliverables'
         artifact: 'java-app'
         publishLocation: 'pipeline'
-      displayName: "Publish Final Output"
-
-    - script: |
-        echo "Cleaning up test-output to save space."
-        rmdir /S /Q "$(buildDir)"
-      displayName: "Cleanup Test Artifacts"      
+      displayName: "Publish Final Output"   
