@@ -73,7 +73,7 @@ stages:
           echo "Copying test result files to deliverables"
           xcopy /S /Y "$(buildDir)\surefire-reports" "$(buildDir)\deliverables\"
         )
-        dir "$(buildDir)\deliverables"
+        dir "$(buildDir)\target"
       displayName: "Prepare Deliverables with Validation"
       
     - task: PublishPipelineArtifact@1
