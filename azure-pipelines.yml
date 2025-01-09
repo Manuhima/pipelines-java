@@ -30,6 +30,17 @@ stages:
         jdkArchitectureOption: 'x64'
         goals: 'clean compile package'
 
+    - script: |
+        echo "Contents of $(buildDir):"
+        dir $(buildDir)
+      displayName: "List Build Directory"
+
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(buildDir)'
+        artifact: 'build-output'
+      displayName: "Publish Build Output"
+
 - stage: Test
   displayName: "Test Stage"
   dependsOn: Build
@@ -37,6 +48,12 @@ stages:
   - job: Test
     displayName: "Test Job"
     steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifact: 'build-output'
+        path: '$(System.DefaultWorkingDirectory)'
+      displayName: "Download Build Output"
+      
     - task: Maven@4
       inputs:
         mavenPomFile: 'pom.xml'
@@ -47,9 +64,12 @@ stages:
         publishJUnitResults: true
         testResultsFiles: '**\surefire-reports\TEST-*.xml'
         goals: 'test'
-    - script: |
-        dir $(buildDir)
-      displayName: "List Target Directory"
+
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(buildDir)'
+        artifact: 'test-output'
+      displayName: "Publish Test Output"
 
 - stage: Deliver
   displayName: "Deliver Stage"
@@ -58,6 +78,12 @@ stages:
   - job: Deliver
     displayName: "Deliver Job"
     steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifact: 'test-output'
+        path: '$(System.DefaultWorkingDirectory)'
+      displayName: "Download Test Output"
+      
     - script: |
         echo "Debug: Checking $(buildDir)"
         if not exist "$(buildDir)\deliverables" mkdir "$(buildDir)\deliverables"
@@ -81,3 +107,4 @@ stages:
         targetPath: '$(buildDir)\deliverables'
         artifact: 'java-app'
         publishLocation: 'pipeline'
+      displayName: "Publish Final Output"
