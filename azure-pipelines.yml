@@ -51,7 +51,7 @@ stages:
     - task: DownloadPipelineArtifact@2
       inputs:
         artifact: 'build-output'
-        path: '$(System.DefaultWorkingDirectory)'
+        path: '$(buildDir)'
       displayName: "Download Build Output"
       
     - task: Maven@4
