@@ -60,11 +60,11 @@ stages:
     steps:
     - script: |
         echo "Debug: Checking $(buildDir)"
+        if not exist "$(buildDir)\deliverables" mkdir "$(buildDir)\deliverables"
         if not exist "$(buildDir)\*.war" (
           echo "No WAR files found in $(buildDir)"
         ) else (
           echo "Copying WAR files to deliverables"
-          if not exist "$(buildDir)\deliverables" mkdir "$(buildDir)\deliverables"
           for %%f in ("$(buildDir)\*.war") do copy "%%f" "$(buildDir)\deliverables\"
         )
         if not exist "$(buildDir)\surefire-reports\*" (
