@@ -21,7 +21,7 @@ stages:
   - job: Build
     displayName: "Build Job"
     steps:
-    - task: Maven@3
+    - task: Maven@4
       inputs:
         mavenPomFile: 'pom.xml'
         mavenOptions: '-Xmx3072m'
@@ -37,7 +37,7 @@ stages:
   - job: Test
     displayName: "Test Job"
     steps:
-    - task: Maven@3
+    - task: Maven@4
       inputs:
         mavenPomFile: 'pom.xml'
         mavenOptions: '-Xmx3072m'
