@@ -47,6 +47,9 @@ stages:
         publishJUnitResults: true
         testResultsFiles: '**\surefire-reports\TEST-*.xml'
         goals: 'test'
+    - script: |
+        dir $(buildDir)
+      displayName: "List Target Directory"
 
 - stage: Deliver
   displayName: "Deliver Stage"
@@ -57,18 +60,21 @@ stages:
     steps:
     - script: |
         echo "Debug: Checking $(buildDir)"
-        if not exist "$(buildDir)\deliverables" mkdir "$(buildDir)\deliverables"
-        echo "Copying JAR files to deliverables"
-        for %%f in ("$(buildDir)\*.jar") do (
-          echo Copying %%f
-          copy "%%f" "$(buildDir)\deliverables\"
+        if not exist "$(buildDir)\*.jar" (
+          echo "No JAR files found in $(buildDir)"
+        ) else (
+          echo "Copying JAR files to deliverables"
+          if not exist "$(buildDir)\deliverables" mkdir "$(buildDir)\deliverables"
+          for %%f in ("$(buildDir)\*.jar") do copy "%%f" "$(buildDir)\deliverables\"
         )
-        echo "Copying test result files to deliverables"
-        for %%f in ("$(buildDir)\**\surefire-reports\TEST-*.xml") do (
-          echo Copying %%f
-          copy "%%f" "$(buildDir)\deliverables\"
+        if not exist "$(buildDir)\surefire-reports\*" (
+          echo "No test result files found"
+        ) else (
+          echo "Copying test result files to deliverables"
+          xcopy /S /Y "$(buildDir)\surefire-reports" "$(buildDir)\deliverables\"
         )
-      displayName: "Prepare Deliverables"
+        dir "$(buildDir)\deliverables"
+      displayName: "Prepare Deliverables with Validation"
 
     - task: PublishPipelineArtifact@1
       inputs:
