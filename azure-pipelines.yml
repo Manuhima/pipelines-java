@@ -69,12 +69,8 @@ stages:
       inputs:
         targetPath: '$(buildDir)'
         artifact: 'test-output'
+        publishLocation: 'pipeline'
       displayName: "Publish Test Output"
-
-    - script: |
-        echo "Removing build-output artifact from pipeline."
-        az pipelines artifact delete --project $(System.TeamProject) --name build-output --run-id $(Build.BuildId) --yes
-      displayName: "Delete Build Output Artifact"
 
 - stage: Deliver
   displayName: "Deliver Stage"
@@ -105,12 +101,7 @@ stages:
           xcopy /S /Y "$(buildDir)\surefire-reports" "$(buildDir)\deliverables\"
         )
         dir "$(buildDir)"
-      displayName: "Prepare Deliverables with Validation"
-
-    - script: |
-        echo "Removing test-output artifact from pipeline."
-        az pipelines artifact delete --project $(System.TeamProject) --name test-output --run-id $(Build.BuildId) --yes
-      displayName: "Delete Test Output Artifact"      
+      displayName: "Prepare Deliverables with Validation"     
       
     - task: PublishPipelineArtifact@1
       inputs:
