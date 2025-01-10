@@ -38,7 +38,7 @@ stages:
     - task: PublishPipelineArtifact@1
       inputs:
         targetPath: '$(buildDir)'
-        artifact: 'java-app'
+        artifact: 'build-output'
       displayName: "Publish Build Output"
 
 - stage: Test
@@ -50,7 +50,7 @@ stages:
     steps:
     - task: DownloadPipelineArtifact@2
       inputs:
-        artifact: 'java-app'
+        artifact: 'build-output'
         path: '$(buildDir)'
       displayName: "Download Build Output"
       
@@ -68,7 +68,7 @@ stages:
     - task: PublishPipelineArtifact@1
       inputs:
         targetPath: '$(buildDir)'
-        artifact: 'java-app'
+        artifact: 'test-output'
         publishLocation: 'pipeline'
       displayName: "Publish Test Output"
 
@@ -81,7 +81,7 @@ stages:
     steps:
     - task: DownloadPipelineArtifact@2
       inputs:
-        artifact: 'java-app'
+        artifact: 'test-output'
         path: '$(buildDir)'
       displayName: "Download Test Output"
       
